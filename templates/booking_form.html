@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">
+    {% if is_edit %}تعديل حجز{% else %}إنشاء حجز جديد{% endif %}
+  </h2>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="card mb-3">
+      <div class="card-header">
+        بيانات النزيل
+      </div>
+      <div class="card-body row g-3">
+        <div class="col-md-6">
+          <label class="form-label">{{ form.guest_name.label }}</label>
+          {{ form.guest_name|add_class:"form-control" }}
+          {% if form.guest_name.errors %}
+            <div class="text-danger small">{{ form.guest_name.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ form.guest_phone.label }}</label>
+          {{ form.guest_phone|add_class:"form-control" }}
+          {% if form.guest_phone.errors %}
+            <div class="text-danger small">{{ form.guest_phone.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ form.guest_email.label }}</label>
+          {{ form.guest_email|add_class:"form-control" }}
+          {% if form.guest_email.errors %}
+            <div class="text-danger small">{{ form.guest_email.errors }}</div>
+          {% endif %}
+          {% if form.guest_email.help_text %}
+            <div class="form-text">{{ form.guest_email.help_text }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        بيانات الحجز
+      </div>
+      <div class="card-body row g-3">
+        <div class="col-md-3">
+          <label class="form-label">{{ form.room.label }}</label>
+          {{ form.room|add_class:"form-select" }}
+          {% if form.room.errors %}
+            <div class="text-danger small">{{ form.room.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ form.check_in.label }}</label>
+          {{ form.check_in|add_class:"form-control" }}
+          {% if form.check_in.errors %}
+            <div class="text-danger small">{{ form.check_in.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ form.check_out.label }}</label>
+          {{ form.check_out|add_class:"form-control" }}
+          {% if form.check_out.errors %}
+            <div class="text-danger small">{{ form.check_out.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ form.status.label }}</label>
+          {{ form.status|add_class:"form-select" }}
+          {% if form.status.errors %}
+            <div class="text-danger small">{{ form.status.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" name="submit_action" value="save" class="btn btn-primary">
+        حفظ
+      </button>
+      <button type="submit" name="submit_action" value="save_and_create_pass" class="btn btn-success">
+        حفظ وإنشاء بطاقة دخول
+      </button>
+      <a href="{% url 'guests:booking_list' %}" class="btn btn-outline-secondary">
+        إلغاء
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}
