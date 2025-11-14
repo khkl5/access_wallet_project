@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4" dir="rtl">
+  <div class="mb-3">
+    <a href="{% url 'core:booking_list' %}" class="btn btn-sm btn-outline-secondary">
+      ← العودة لقائمة الحجوزات
+    </a>
+  </div>
+
+  <h2 class="mb-3">إضافة حجز جديد</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <!-- عرض الحقول بشكل يدوي عشان التحكم بالشكل -->
+        <div class="mb-3">
+          <label class="form-label">النزيل</label>
+          {{ form.guest }}
+          {{ form.guest.errors }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">الغرفة</label>
+          {{ form.room }}
+          {{ form.room.errors }}
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">تاريخ البداية</label>
+            {{ form.start_date }}
+            {{ form.start_date.errors }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">تاريخ النهاية</label>
+            {{ form.end_date }}
+            {{ form.end_date.errors }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">حالة الحجز</label>
+          {{ form.status }}
+          {{ form.status.errors }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">ملاحظات</label>
+          {{ form.notes }}
+          {{ form.notes.errors }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          💾 حفظ الحجز
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

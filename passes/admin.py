@@ -4,6 +4,7 @@ from .models import AccessPass
 
 @admin.register(AccessPass)
 class AccessPassAdmin(admin.ModelAdmin):
-    list_display = ("id", "booking", "status", "valid_from", "valid_to", "created_at")
-    list_filter = ("status",)
-    search_fields = ("booking__guest__full_name", "wallet_pass_id")
+    list_display = ("id", "booking", "pass_id", "is_active", "created_at", "expires_at")
+    list_filter = ("is_active", "created_at", "expires_at")
+    search_fields = ("pass_id", "booking__id")
+    readonly_fields = ("created_at",)

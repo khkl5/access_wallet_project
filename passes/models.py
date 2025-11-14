@@ -1,43 +1,46 @@
+from core.models import Booking
 from django.db import models
-from django.utils import timezone
-from guests.models import Booking
+from core.models import Booking
 
 
 class AccessPass(models.Model):
-    STATUS_CHOICES = [
-        ('not_created', 'لم تُنشأ'),
-        ('active', 'مفعّلة'),
-        ('cancelled', 'ملغاة'),
-        ('expired', 'منتهية'),
-    ]
-
     booking = models.OneToOneField(
         Booking,
         on_delete=models.CASCADE,
-        related_name='access_pass'
+        related_name="access_pass",
+        help_text="الحجز المرتبط بهذه البطاقة",
     )
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='not_created'
-    )
-    wallet_pass_id = models.CharField(
+    pass_id = models.CharField(
         max_length=255,
+        unique=True,
         blank=True,
-        help_text="المعرّف القادم من Apple Wallet أو نظام القفل"
+        null=True,
+        help_text="معرف البطاقة في النظام أو في Apple Wallet (إن وجد)",
     )
-    valid_from = models.DateTimeField(null=True, blank=True)
-    valid_to = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    wallet_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="رابط تحميل البطاقة في المحفظة",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="وقت إنشاء البطاقة",
+    )
+    expires_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="وقت انتهاء صلاحية البطاقة إن وجد",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="هل البطاقة مفعّلة الآن؟",
+    )
 
-    def is_active(self):
-        now = timezone.now()
-        return (
-            self.status == 'active'
-            and self.valid_from
-            and self.valid_to
-            and self.valid_from <= now <= self.valid_to
-        )
+    class Meta:
+        verbose_name = "Access Pass"
+        verbose_name_plural = "Access Passes"
 
     def __str__(self):
-        return f"AccessPass for Booking #{self.booking_id}"
+        if self.pass_id:
+            return f"Pass {self.pass_id} for booking {self.booking_id}"
+        return f"Pass for booking {self.booking_id}"

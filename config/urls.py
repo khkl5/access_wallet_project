@@ -6,5 +6,5 @@ urlpatterns = [
     path("api/core/", include("core.urls")),
     path("api/guests/", include("guests.urls")),
     path("api/passes/", include("passes.urls")),
-    path("", include("guests.urls")),
+    path("bookings/", include("guests.urls")),
 ]

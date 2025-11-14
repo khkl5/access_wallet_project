@@ -15,3 +15,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+class Booking(models.Model):
+    guest = models.ForeignKey("guests.Guest", on_delete=models.CASCADE, related_name="bookings")
+    room = models.CharField(max_length=50)
+    check_in = models.DateField()
+    check_out = models.DateField()
+
+    def __str__(self):
+        return f"{self.guest.full_name} - {self.room}"
