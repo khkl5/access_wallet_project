@@ -1,17 +1,43 @@
 from django.db import models
-from guests.models import Guest
-import uuid
+from django.utils import timezone
+from guests.models import Booking
 
-class DoorPass(models.Model):
-    """
-    بطاقة دخول رقمية مرتبطة بنزيل.
-    تحتوي على رقم تسلسلي ورمز يستخدمه النظام لاحقًا لتوليد pkpass.
-    """
-    guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name='passes')
-    serial = models.CharField(max_length=128, unique=True, default=uuid.uuid4)
-    access_code = models.CharField(max_length=64)  # ممكن يكون رمز الباب أو كود خاص
+
+class AccessPass(models.Model):
+    STATUS_CHOICES = [
+        ('not_created', 'لم تُنشأ'),
+        ('active', 'مفعّلة'),
+        ('cancelled', 'ملغاة'),
+        ('expired', 'منتهية'),
+    ]
+
+    booking = models.OneToOneField(
+        Booking,
+        on_delete=models.CASCADE,
+        related_name='access_pass'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='not_created'
+    )
+    wallet_pass_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="المعرّف القادم من Apple Wallet أو نظام القفل"
+    )
+    valid_from = models.DateTimeField(null=True, blank=True)
+    valid_to = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+
+    def is_active(self):
+        now = timezone.now()
+        return (
+            self.status == 'active'
+            and self.valid_from
+            and self.valid_to
+            and self.valid_from <= now <= self.valid_to
+        )
 
     def __str__(self):
-        return f"Pass for {self.guest.name} ({'Active' if self.is_active else 'Inactive'})"
+        return f"AccessPass for Booking #{self.booking_id}"

@@ -4,10 +4,10 @@ from .models import Guest
 
 @admin.register(Guest)
 class GuestAdmin(admin.ModelAdmin):
-    """
-    عرض وإدارة بيانات النزلاء في لوحة التحكم.
-    """
-    list_display = ('name', 'phone', 'unit_number', 'check_in', 'check_out', 'created_at')
-    list_filter = ('unit_number', 'check_in', 'check_out')
-    search_fields = ('name', 'phone', 'unit_number')
-    ordering = ('-created_at',)
+    # نعرض فقط الـ id والنص اللي يرجعه __str__
+    list_display = ("id", "__str__")
+    # ترتيب بسيط بالـ id
+    ordering = ("id",)
+    # ما نستخدم list_filter على حقول غير مضمونة
+    list_filter = ()
+    search_fields = ()

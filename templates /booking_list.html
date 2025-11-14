@@ -1,0 +1,588 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-soft: #dbeafe;
+    --primary-dark: #1d4ed8;
+    --danger: #ef4444;
+    --success: #16a34a;
+    --warning: #facc15;
+    --muted: #6b7280;
+    --bg-soft: #f3f4f6;
+    --card-bg: #ffffff;
+    --radius-lg: 18px;
+    --shadow-soft: 0 18px 35px rgba(15, 23, 42, 0.08);
+  }
+
+  body {
+    background: radial-gradient(circle at top, #e0f2fe 0, #f9fafb 45%, #f3f4f6 100%);
+  }
+
+  .booking-shell {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .booking-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    padding: 20px 22px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .booking-card::before {
+    content: "";
+    position: absolute;
+    inset-inline-end: -70px;
+    top: -70px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent 70%);
+    filter: blur(1px);
+    pointer-events: none;
+  }
+
+  .booking-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .booking-title-group h2 {
+    font-size: 1.35rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .booking-title-pill {
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  .btn-main {
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff !important;
+    text-decoration: none;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn-main:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(37, 99, 235, 0.4);
+    opacity: 0.95;
+  }
+
+  .btn-main span.icon {
+    font-size: 1.1rem;
+  }
+
+  .booking-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 18px;
+  }
+
+  .booking-filters .form-control,
+  .booking-filters .form-select {
+    border-radius: 999px;
+    font-size: 0.85rem;
+    border-color: rgba(148, 163, 184, 0.7);
+    padding-inline: 14px;
+    background-color: #f9fafb;
+  }
+
+  .booking-filters .form-control:focus,
+  .booking-filters .form-select:focus {
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    border-color: var(--primary);
+  }
+
+  .booking-filters label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .booking-filters .filter-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* جدول */
+  .modern-table-container {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: #f9fafb;
+  }
+
+  .table-modern {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-modern thead {
+    background: linear-gradient(135deg, #eff6ff, #e5e7eb);
+  }
+
+  .table-modern thead th {
+    padding: 10px 12px;
+    border-bottom-width: 0;
+    color: #4b5563;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .table-modern tbody tr {
+    transition: background 0.12s ease, transform 0.08s ease;
+  }
+
+  .table-modern tbody tr:not(.no-hover):hover {
+    background: rgba(219, 234, 254, 0.55);
+    transform: translateY(-1px);
+  }
+
+  .table-modern tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-top: 1px solid rgba(209, 213, 219, 0.8);
+  }
+
+  .booking-id {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .guest-name {
+    font-weight: 600;
+  }
+
+  .guest-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* Badges */
+  .badge-chip {
+    border-radius: 999px;
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .badge-chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .badge-status-confirmed {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--success);
+  }
+
+  .badge-status-pending {
+    background: rgba(250, 204, 21, 0.17);
+    color: #854d0e;
+  }
+
+  .badge-status-cancelled {
+    background: rgba(148, 163, 184, 0.18);
+    color: #4b5563;
+  }
+
+  .badge-pass-active {
+    background: rgba(22, 163, 74, 0.1);
+    color: var(--success);
+  }
+
+  .badge-pass-cancelled {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+  }
+
+  .badge-pass-expired {
+    background: rgba(148, 163, 184, 0.18);
+    color: #4b5563;
+  }
+
+  .badge-pass-none {
+    background: rgba(229, 231, 235, 0.9);
+    color: #374151;
+  }
+
+  .actions-col {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .btn-action {
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-action-outline {
+    border: 1px solid rgba(148, 163, 184, 0.9);
+    background: #ffffff;
+    color: #374151;
+  }
+
+  .btn-action-outline:hover {
+    background: #eef2ff;
+    color: var(--primary-dark);
+  }
+
+  .btn-action-success {
+    background: rgba(22, 163, 74, 0.14);
+    border: 1px solid rgba(22, 163, 74, 0.4);
+    color: var(--success);
+  }
+
+  .btn-action-success:hover {
+    background: rgba(22, 163, 74, 0.2);
+  }
+
+  .btn-action-danger {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.55);
+    color: var(--danger);
+  }
+
+  .btn-action-danger:hover {
+    background: rgba(239, 68, 68, 0.18);
+  }
+
+  .empty-state {
+    padding: 26px 14px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  @media (max-width: 768px) {
+    .booking-header {
+      align-items: flex-start;
+    }
+    .booking-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .table-modern thead {
+      font-size: 0.78rem;
+    }
+    .table-modern tbody td {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<div class="container mt-4 booking-shell">
+  <div class="booking-card">
+
+    <!-- الهيدر -->
+    <div class="booking-header">
+      <div class="booking-title-group">
+        <h2>
+          قائمة الحجوزات
+          <span class="booking-title-pill">نظام الوصول الذكي</span>
+        </h2>
+        <div class="guest-meta">
+          إدارة سريعة للحجوزات وبطاقات الدخول من مكان واحد.
+        </div>
+      </div>
+
+      <a href="#" class="btn-main">
+        <span class="icon">➕</span>
+        <span>حجز جديد</span>
+      </a>
+    </div>
+
+    <!-- الفلاتر والبحث -->
+    <div class="booking-filters">
+      <div class="filter-group flex-grow-1">
+        <label for="bookingSearch">بحث عن نزيل / غرفة</label>
+        <input
+          type="text"
+          id="bookingSearch"
+          class="form-control"
+          placeholder="اكتب اسم النزيل أو رقم الغرفة..."
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label for="statusFilter">حالة الحجز</label>
+        <select id="statusFilter" class="form-select">
+          <option value="">الكل</option>
+          <option value="confirmed">مؤكد</option>
+          <option value="pending">قيد التأكيد</option>
+          <option value="cancelled">ملغى</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="passFilter">حالة البطاقة</label>
+        <select id="passFilter" class="form-select">
+          <option value="">الكل</option>
+          <option value="active">مفعّلة</option>
+          <option value="cancelled">ملغاة</option>
+          <option value="expired">منتهية</option>
+          <option value="not_created">لم تُنشأ</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- الجدول -->
+    <div class="modern-table-container table-responsive">
+      <table class="table table-modern align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>النزيل</th>
+            <th>الغرفة</th>
+            <th>الفترة</th>
+            <th>حالة الحجز</th>
+            <th>حالة البطاقة</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="bookingTableBody">
+          {% for booking in bookings %}
+            {% with pass=booking.access_pass %}
+            <tr
+              data-status="{{ booking.status }}"
+              data-pass-status="{% if pass %}{{ pass.status }}{% else %}not_created{% endif %}"
+              data-search-text="{{ booking.guest.full_name }} {{ booking.room }} {{ booking.id }}"
+            >
+              <!-- رقم الحجز -->
+              <td class="booking-id">
+                #{{ booking.id }}
+              </td>
+
+              <!-- بيانات النزيل -->
+              <td>
+                <div class="guest-name">{{ booking.guest.full_name }}</div>
+                <div class="guest-meta">
+                  حجز من {{ booking.start_date|date:"d M" }}
+                  حتى {{ booking.end_date|date:"d M" }}
+                </div>
+              </td>
+
+              <!-- الغرفة -->
+              <td>
+                <div class="fw-semibold">{{ booking.room }}</div>
+              </td>
+
+              <!-- الفترة (مختصرة) -->
+              <td>
+                <div class="guest-meta">
+                  {{ booking.start_date|date:"d M" }} – {{ booking.end_date|date:"d M" }}
+                </div>
+              </td>
+
+              <!-- حالة الحجز -->
+              <td>
+                {% if booking.status == 'confirmed' %}
+                  <span class="badge badge-chip badge-status-confirmed">
+                    <span class="badge-chip-dot"></span>
+                    مؤكد
+                  </span>
+                {% elif booking.status == 'pending' %}
+                  <span class="badge badge-chip badge-status-pending">
+                    <span class="badge-chip-dot"></span>
+                    قيد التأكيد
+                  </span>
+                {% elif booking.status == 'cancelled' %}
+                  <span class="badge badge-chip badge-status-cancelled">
+                    <span class="badge-chip-dot"></span>
+                    ملغى
+                  </span>
+                {% else %}
+                  {{ booking.get_status_display }}
+                {% endif %}
+              </td>
+
+              <!-- حالة البطاقة -->
+              <td>
+                {% if pass %}
+                  {% if pass.status == 'active' %}
+                    <span class="badge badge-chip badge-pass-active">
+                      <span class="badge-chip-dot"></span>
+                      مفعّلة
+                    </span>
+                  {% elif pass.status == 'cancelled' %}
+                    <span class="badge badge-chip badge-pass-cancelled">
+                      <span class="badge-chip-dot"></span>
+                      ملغاة
+                    </span>
+                  {% elif pass.status == 'expired' %}
+                    <span class="badge badge-chip badge-pass-expired">
+                      <span class="badge-chip-dot"></span>
+                      منتهية
+                    </span>
+                  {% else %}
+                    <span class="badge badge-chip badge-pass-none">
+                      <span class="badge-chip-dot"></span>
+                      لم تُنشأ
+                    </span>
+                  {% endif %}
+                {% else %}
+                  <span class="badge badge-chip badge-pass-none">
+                    <span class="badge-chip-dot"></span>
+                    لم تُنشأ
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- الإجراءات -->
+              <td>
+                <div class="actions-col">
+                  <!-- زر عرض -->
+                  <a href="#" class="btn btn-action btn-action-outline js-view-booking"
+                     data-booking-id="{{ booking.id }}">
+                    👁 عرض
+                  </a>
+
+                  <!-- زر إنشاء بطاقة -->
+                  {% if not pass or pass.status == 'not_created' %}
+                    <a href="#"
+                       class="btn btn-action btn-action-success js-create-pass"
+                       data-booking-id="{{ booking.id }}">
+                      🎟 إنشاء بطاقة
+                    </a>
+                  {% endif %}
+
+                  <!-- زر إلغاء البطاقة -->
+                  {% if pass and pass.status == 'active' %}
+                    <a href="#"
+                       class="btn btn-action btn-action-danger js-cancel-pass"
+                       data-booking-id="{{ booking.id }}">
+                      ✖ إلغاء البطاقة
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endwith %}
+          {% empty %}
+            <tr class="no-hover">
+              <td colspan="7" class="empty-state">
+                لا توجد حجوزات حالياً. ابدأ بإضافة أول حجز من زر "حجز جديد" في الأعلى ✨
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // JS بسيط للبحث والفلترة + حماية بسيطة من الأخطاء
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('bookingSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const passFilter = document.getElementById('passFilter');
+    const tableBody = document.getElementById('bookingTableBody');
+
+    if (!tableBody) return;
+
+    const rows = Array.from(tableBody.querySelectorAll('tr[data-status]'));
+
+    function applyFilters() {
+      const searchValue = (searchInput?.value || '').toLowerCase().trim();
+      const statusValue = statusFilter?.value || '';
+      const passValue = passFilter?.value || '';
+
+      rows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status') || '';
+        const rowPass = row.getAttribute('data-pass-status') || '';
+        const searchText = (row.getAttribute('data-search-text') || '').toLowerCase();
+
+        const matchSearch = !searchValue || searchText.includes(searchValue);
+        const matchStatus = !statusValue || rowStatus === statusValue;
+        const matchPass = !passValue || rowPass === passValue;
+
+        if (matchSearch && matchStatus && matchPass) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+    if (statusFilter) {
+      statusFilter.addEventListener('change', applyFilters);
+    }
+    if (passFilter) {
+      passFilter.addEventListener('change', applyFilters);
+    }
+
+    // أمثلة لتوصيل الأزرار بالباك إند لاحقاً (AJAX أو روابط عادية)
+    tableBody.addEventListener('click', function (e) {
+      const target = e.target.closest('a');
+      if (!target) return;
+
+      // منع الانتقال لو حابين تستخدمون AJAX
+      // e.preventDefault();
+
+      const bookingId = target.getAttribute('data-booking-id');
+      if (!bookingId) return;
+
+      if (target.classList.contains('js-view-booking')) {
+        // TODO: اربطيه بصفحة التفاصيل أو مودال
+        console.log('View booking', bookingId);
+      }
+
+      if (target.classList.contains('js-create-pass')) {
+        // TODO: اربطيه بendpoint لإنشاء بطاقة
+        console.log('Create pass for booking', bookingId);
+      }
+
+      if (target.classList.contains('js-cancel-pass')) {
+        // TODO: اربطيه بendpoint لإلغاء البطاقة
+        console.log('Cancel pass for booking', bookingId);
+      }
+    });
+  });
+</script>
+{% endblock %}
